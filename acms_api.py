@@ -19,7 +19,7 @@ from acms_models import (
     QuestionInsert, QuestionUpdate,
     TestQuery, TestPublish, ExtendExamTime,
     ResultStudent, ResultStart,
-    SaveAnswer, ScoreComment, AIResultUpdate,
+    AnswerItem, SaveAnswer, ScoreItem, ScoreComment, AIResultUpdate,
     VideoForm, VideoListQuery,
     AttendanceSave, AttendanceUpdate, AttendanceStatus,
     AIAsk,
@@ -516,21 +516,24 @@ class ACMSClient:
         ).json()
 
     def save_answer(self, form: SaveAnswer) -> dict:
-        """保存作答"""
-        return self.session.post(
-            f"{self.base_url}/result/saveAnswer", json=to_dict(form)
+        """批量保存作答（PUT 请求，发送 AnswerItem 数组）"""
+        items = [to_dict(item) for item in form.items]
+        return self.session.put(
+            f"{self.base_url}/result/saveAnswer", json=items
         ).json()
 
     def update_answer(self, form: SaveAnswer) -> dict:
-        """更新作答"""
-        return self.session.post(
-            f"{self.base_url}/result/updateAnswer", json=to_dict(form)
+        """批量更新作答（PUT 请求，发送 AnswerItem 数组）"""
+        items = [to_dict(item) for item in form.items]
+        return self.session.put(
+            f"{self.base_url}/result/updateAnswer", json=items
         ).json()
 
     def update_score_comment(self, form: ScoreComment) -> dict:
-        """更新分数和评语"""
+        """批量更新分数和评语（发送 ScoreItem 数组）"""
+        items = [to_dict(item) for item in form.items]
         return self.session.post(
-            f"{self.base_url}/result/updateScoreAndComment", json=to_dict(form)
+            f"{self.base_url}/result/updateScoreAndComment", json=items
         ).json()
 
     def update_ai_result(self, form: AIResultUpdate) -> dict:

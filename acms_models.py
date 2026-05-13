@@ -351,22 +351,43 @@ class ExtendExamTime:
 # ── 作答 ──
 
 @dataclass
-class SaveAnswer:
-    """保存/更新作答"""
-    student_id: str
-    test_id: int
-    question_id: int
+class AnswerItem:
+    """单条作答"""
+    student_id: str = ""
+    test_id: int = 0
+    question_id: int = 0
     answer: str = ""
 
 
 @dataclass
-class ScoreComment:
-    """更新分数和评语"""
-    student_id: str
-    test_id: int
-    question_id: int
-    score: int = 0
+class SaveAnswer:
+    """批量保存/更新作答（数组）"""
+    items: list[AnswerItem] = None
+
+    def __post_init__(self):
+        if self.items is None:
+            self.items = []
+
+
+@dataclass
+class ScoreItem:
+    """单条分数评语"""
+    id: str = ""               # 记录ID（如 "2407110107839100"）
+    question_id: int = 0
+    student_id: str = ""
+    test_id: int = 0
+    actual_score: int = 0
     comment: str = ""
+
+
+@dataclass
+class ScoreComment:
+    """批量更新分数和评语（数组）"""
+    items: list[ScoreItem] = None
+
+    def __post_init__(self):
+        if self.items is None:
+            self.items = []
 
 
 @dataclass

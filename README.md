@@ -1,11 +1,11 @@
 # 《数据库原理》智慧课程 — API 函数使用说明
 
-**文件结构：**
+**文件：**
 
 | 文件 | 内容 |
 |------|------|
-| [acms_api.py](acms_api.py) | `ACMSClient` 客户端类，91 个方法 |
 | [acms_models.py](acms_models.py) | 38 个请求参数 dataclass |
+| [acms_api.py](acms_api.py) | ACMSClient 客户端，91 个方法 |
 | [acms_demo.py](acms_demo.py) | 综合使用示例 |
 
 ---
@@ -20,9 +20,7 @@ client = create_client("123456", "123456")
 
 ---
 
-## 参数 Dataclass 速查表
-
-所有参数类均从 `acms_models` 导入。
+## 参数 Dataclass 速查
 
 | 类 | 字段 |
 |----|------|
@@ -53,8 +51,10 @@ client = create_client("123456", "123456")
 | `ExtendExamTime` | `student_id: str`, `test_id: int`, `extend_minutes: 10` |
 | `ResultStudent` | `student_id: str` |
 | `ResultStart` | `student_id: str`, `test_id: int`, `is_test: 0` |
-| `SaveAnswer` | `student_id: str`, `test_id: int`, `question_id: int`, `answer: ""` |
-| `ScoreComment` | `student_id: str`, `test_id: int`, `question_id: int`, `score: 0`, `comment: ""` |
+| `AnswerItem` | `student_id: ""`, `test_id: 0`, `question_id: 0`, `answer: ""` |
+| `SaveAnswer` | `items: list[AnswerItem]` — 数组包装，序列化为 `[{...}]` |
+| `ScoreItem` | `id: ""`, `question_id: 0`, `student_id: ""`, `test_id: 0`, `actual_score: 0`, `comment: ""` |
+| `ScoreComment` | `items: list[ScoreItem]` — 数组包装，序列化为 `[{...}]` |
 | `AIResultUpdate` | `student_id: str`, `test_id: int` |
 | `VideoForm` | `title: str`, `url: ""`, `description: ""`, `category_id: 0` |
 | `VideoListQuery` | `page_num: 1`, `page_size: 20`, `keyword: ""` |
@@ -67,18 +67,12 @@ client = create_client("123456", "123456")
 
 ## 方法速查
 
-### 认证
+### 认证 / 访问量
 
 ```python
 client.login(LoginForm(id="123456", password="123456"))
 client.logout()
 client.is_logged_in()
-client.user_info
-```
-
-### 访问量
-
-```python
 client.get_visit_count()
 client.increment_visit()
 ```
@@ -87,7 +81,7 @@ client.increment_visit()
 
 ```python
 client.query_user(UserQuery(id="123456"))
-client.get_all_users()
+client.get_all_users()                         # 管理员
 client.insert_user(UserInsert(id="20240001", role=2, name="张三", password="123456"))
 client.update_user(UserUpdate(id="123456", role=1))
 ```
@@ -96,7 +90,7 @@ client.update_user(UserUpdate(id="123456", role=1))
 
 ```python
 client.get_all_roles()
-client.add_role(RoleForm(name="新角色", description="描述"))
+client.add_role(RoleForm(name="新角色"))
 client.update_role(RoleUpdate(id=1, name="改名"))
 ```
 
@@ -138,7 +132,7 @@ client.search_student_by_prefix("24071101")
 client.insert_student(StudentForm(student_id="20240001", name="张三", gender="男", class_name="计科241班"))
 client.update_student(StudentUpdate(student_id="123456", name="新名字"))
 client.delete_student([20240001, 20240002])
-client.update_student_class(["2407110101", "2407110102"], class_id=28)
+client.update_student_class(["2407110101"], class_id=28)
 client.batch_student_info(BatchStudentInfo(students=[]))
 
 data = client.export_students(27)
@@ -151,7 +145,7 @@ client.upload_student_file("students.xlsx")
 
 ```python
 client.get_question_categories()
-client.add_question_category(QuestionCategoryForm(question_category="新章节", teacher_id="20050027"))
+client.add_question_category(QuestionCategoryForm(question_category="新章节"))
 ```
 
 ### 题目管理
@@ -173,7 +167,7 @@ client.upload_question_file("questions.xlsx")
 ### 考试/测试
 
 ```python
-client.get_teacher_tests(TestQuery(teacher_id="20050027", class_id=27))
+client.get_teacher_tests(TestQuery(teacher_id="20050027", class_id=27))  # 教师/管理员
 client.get_class_test(27)
 client.get_student_test("123456")
 client.publish_test(TestPublish(title="期末考试", duration=120, class_ids=[27], question_ids=[1168, 1167]))
@@ -181,6 +175,7 @@ client.publish_test_ai(TestPublish(title="AI测试", duration=60))
 client.publish_test_to_class(test_id=1, class_ids=[27, 28])
 client.publish_test_to_student(test_id=1, student_ids=["123456"])
 client.extend_exam_time(ExtendExamTime(student_id="123456", test_id=1, extend_minutes=10))
+
 data = client.export_student_report("123456", test_id=1)
 data = client.export_class_avg_scores(test_id=1)
 data = client.export_filtered_score_detail(test_id=1)
@@ -193,9 +188,23 @@ client.get_student_result(ResultStudent(student_id="123456"))
 client.start_result(ResultStart(student_id="123456", test_id=1, is_test=0))
 client.get_result_detail("123456", test_id=1)
 client.get_ai_result_detail("123456", test_id=1)
-client.save_answer(SaveAnswer(student_id="123456", test_id=1, question_id=1168, answer="我的答案"))
-client.update_answer(SaveAnswer(student_id="123456", test_id=1, question_id=1168, answer="修改后"))
-client.update_score_comment(ScoreComment(student_id="123456", test_id=1, question_id=1168, score=8, comment="评语"))
+
+# 保存作答 — PUT 请求，发送 AnswerItem 数组
+client.save_answer(SaveAnswer(items=[
+    AnswerItem(student_id="123456", test_id=1, question_id=839, answer="C"),
+]))
+
+# 更新作答 — PUT 请求
+client.update_answer(SaveAnswer(items=[
+    AnswerItem(student_id="123456", test_id=1, question_id=839, answer="修改后"),
+]))
+
+# 更新分数评语 — POST 请求，发送 ScoreItem 数组
+client.update_score_comment(ScoreComment(items=[
+    ScoreItem(id="2407110107839100", question_id=839, student_id="123456",
+              test_id=100, actual_score=30, comment="答案正确"),
+]))
+
 client.update_ai_result(AIResultUpdate(student_id="123456", test_id=1))
 ```
 
@@ -212,7 +221,7 @@ client.ai_teacher_ask("如何设计索引优化查询？")
 client.get_video_list(VideoListQuery(page_num=1, page_size=20, keyword=""))
 client.get_video_tree()
 client.get_video_tree_select()
-client.add_video(VideoForm(title="B+树索引", url="http://example.com/v.mp4", description="讲解", category_id=1))
+client.add_video(VideoForm(title="B+树索引", url="http://example.com/v.mp4", description="讲解"))
 client.upload_video("video.mp4")
 ```
 
@@ -221,7 +230,7 @@ client.upload_video("video.mp4")
 ```python
 client.get_attendance_history(27)
 client.save_attendance(AttendanceSave(class_id=27, student_id="123456", status="出勤", date="2026-05-13"))
-client.update_attendance(AttendanceUpdate(timestamp="2026-05-13T09:00", student_id="123456", is_attendance=True))
+client.update_attendance(AttendanceUpdate(timestamp="2026-05-13T09:00", student_id="123456"))
 client.update_attendance_status(AttendanceStatus(student_id="123456", is_attendance=True, date="2026-05-13"))
 data = client.export_attendance(27)
 client.export_attendance_single(1)
@@ -243,6 +252,17 @@ data = client.export_students(27)
 with open("students.xlsx", "wb") as f:
     f.write(data)
 ```
+
+---
+
+## HTTP 方法对照
+
+| 接口 | 方法 | 请求体格式 |
+|------|------|-----------|
+| saveAnswer | **PUT** | `[{studentId, testId, questionId, answer}, ...]` |
+| updateAnswer | **PUT** | 同上 |
+| updateScoreAndComment | POST | `[{id, studentId, testId, questionId, actualScore, comment}, ...]` |
+| 其余全部 | POST/GET | — |
 
 ---
 

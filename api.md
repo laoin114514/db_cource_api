@@ -1471,59 +1471,99 @@ Content-Type: application/octet-stream
 
 ---
 
-### POST /result/saveAnswer
+### PUT /result/saveAnswer
 
-> 保存作答
+> 批量保存作答（PUT 请求，数组格式）
 
 **Request**
 
 ```json
-{
-  "studentId": "123456",
-  "testId": 1,
-  "questionId": 1168,
-  "answer": "我的作答内容"
-}
+[
+  {
+    "studentId": "123456",
+    "testId": 1,
+    "questionId": 1168,
+    "answer": "我的作答内容"
+  }
+]
 ```
 
-> 需要进行中的考试
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| studentId | string | 是 | 学号 |
+| testId | int | 是 | 考试 ID |
+| questionId | int | 是 | 题目 ID |
+| answer | string | 否 | 作答内容 |
+
+> 需要进行中的考试；可一次传多道题的作答
+
+**Response** `200 OK`
+
+```json
+{
+  "code": 200,
+  "msg": "成功",
+  "data": {"code": 200, "successCount": 1, "message": "更新成功，共更新 1 条记录", "totalCount": 1}
+}
+```
 
 ---
 
-### POST /result/updateAnswer
+### PUT /result/updateAnswer
 
-> 更新作答
+> 批量更新作答（PUT 请求，数组格式）
 
 **Request**
 
 ```json
-{
-  "studentId": "123456",
-  "testId": 1,
-  "questionId": 1168,
-  "answer": "修改后的答案"
-}
+[
+  {
+    "studentId": "123456",
+    "testId": 1,
+    "questionId": 1168,
+    "answer": "修改后的答案"
+  }
+]
 ```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| studentId | string | 是 | 学号 |
+| testId | int | 是 | 考试 ID |
+| questionId | int | 是 | 题目 ID |
+| answer | string | 否 | 作答内容 |
 
 ---
 
 ### POST /result/updateScoreAndComment
 
-> 更新分数和评语
+> 批量更新分数和评语（数组格式）
 
 **权限:** 教师或管理员
 
 **Request**
 
 ```json
-{
-  "studentId": "123456",
-  "testId": 1,
-  "questionId": 1168,
-  "score": 8,
-  "comment": "回答较好，但缺少对隔离级别的说明"
-}
+[
+  {
+    "id": "2407110107839100",
+    "studentId": "123456",
+    "testId": 100,
+    "questionId": 839,
+    "actualScore": 30,
+    "comment": "答案正确"
+  }
+]
 ```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| id | string | 是 | 结果记录 ID |
+| studentId | string | 是 | 学号 |
+| testId | int | 是 | 考试 ID |
+| questionId | int | 是 | 题目 ID |
+| actualScore | int | 是 | 得分 |
+| comment | string | 否 | 评语 |
 
 ---
 
@@ -1937,14 +1977,12 @@ Authorization: Bearer eyJ0eXAiOiJKV1Q...
 
 ### Python 客户端
 
-封装见 [acms_api.py](acms_api.py)，总计 91 个方法，30 个参数 dataclass。
+封装见 [acms_api.py](acms_api.py)，总计 91 个方法，38 个参数 dataclass。
 
 ```python
-from acms_api import *
+from acms_api import create_client
+from acms_models import *
 
 # 管理员登录
-client = create_client("114514", "114514")
-
-# 学生登录
 client = create_client("123456", "123456")
 ```
