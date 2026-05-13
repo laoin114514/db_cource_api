@@ -128,21 +128,21 @@ class StudentForm:
     """学生表单（新增）"""
     student_id: str      # 学号
     name: str
-    gender: str = ""
-    phone: str = ""
-    notes: str = ""
-    class_name: str = ""
+    gender: Optional[str] = None
+    phone: Optional[str] = None
+    notes: Optional[str] = None
+    class_name: Optional[str] = None
 
 
 @dataclass
 class StudentUpdate:
     """更新学生信息"""
     student_id: str
-    name: str = ""
-    gender: str = ""
-    phone: str = ""
-    notes: str = ""
-    class_name: str = ""
+    name: Optional[str] = None
+    gender: Optional[str] = None
+    phone: Optional[str] = None
+    notes: Optional[str] = None
+    class_name: Optional[str] = None
 
 
 # ── 题库分类 ──

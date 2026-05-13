@@ -107,8 +107,8 @@ class ACMSClient:
         ).json()
 
     def update_role(self, form: RoleUpdate) -> dict:
-        """更新角色"""
-        return self.session.post(
+        """更新角色（PUT 请求）"""
+        return self.session.put(
             f"{self.base_url}/role/update", json=to_dict(form)
         ).json()
 
@@ -161,6 +161,12 @@ class ACMSClient:
         """从班级移除教师"""
         return self.session.post(
             f"{self.base_url}/teacher/remove", json=to_dict(rel)
+        ).json()
+
+    def teacher_batch_info(self, payload: dict) -> dict:
+        """教师批量信息操作"""
+        return self.session.post(
+            f"{self.base_url}/teacher/batchInfo", json=payload
         ).json()
 
     # ── 班级 ──────────────────────────────────────────────
@@ -222,9 +228,16 @@ class ACMSClient:
         ).json()
 
     def update_class(self, form: ClassUpdate) -> dict:
-        """更新班级信息"""
-        return self.session.post(
+        """更新班级信息（PUT 请求）"""
+        return self.session.put(
             f"{self.base_url}/class/update", json=to_dict(form)
+        ).json()
+
+    def find_class_by_student(self, student_id: str) -> dict:
+        """按学生查班级"""
+        return self.session.get(
+            f"{self.base_url}/class/findByStudent",
+            params={"studentId": student_id},
         ).json()
 
     # ── 学生 ──────────────────────────────────────────────
@@ -261,8 +274,8 @@ class ACMSClient:
         ).json()
 
     def update_student(self, form: StudentUpdate) -> dict:
-        """更新学生信息（后端期望 {student: {...}}）"""
-        return self.session.post(
+        """更新学生信息（PUT 请求，后端期望 {student: {...}}；className 必传）"""
+        return self.session.put(
             f"{self.base_url}/student/update",
             json={"student": to_dict(form)},
         ).json()
@@ -273,11 +286,12 @@ class ACMSClient:
             f"{self.base_url}/student/delete", json=student_ids
         ).json()
 
-    def update_student_class(self, student_ids: list[str], class_id: int) -> dict:
-        """批量更新学生班级"""
-        return self.session.post(
+    def update_student_class(self, student_id: str, class_id: int = None, class_name: str = None) -> dict:
+        """更新学生班级（PUT 请求；class_id=null 表示移出班级）"""
+        body = {"studentId": student_id, "classId": class_id, "className": class_name}
+        return self.session.put(
             f"{self.base_url}/student/updateClass",
-            json={"studentIds": student_ids, "classId": class_id},
+            json={k: v for k, v in body.items() if v is not None},
         ).json()
 
     def batch_student_info(self, form: BatchStudentInfo) -> dict:
@@ -378,8 +392,8 @@ class ACMSClient:
         ).json()
 
     def update_question(self, form: QuestionUpdate) -> dict:
-        """更新题目"""
-        return self.session.post(
+        """更新题目（PUT 请求）"""
+        return self.session.put(
             f"{self.base_url}/question/update", json=to_dict(form)
         ).json()
 
@@ -432,24 +446,29 @@ class ACMSClient:
             f"{self.base_url}/test/publish", json=to_dict(form)
         ).json()
 
-    def publish_test_ai(self, form: TestPublish) -> dict:
-        """发布 AI 测试"""
-        return self.session.post(
-            f"{self.base_url}/test/publish/ai", json=to_dict(form)
+    def get_publish_teacher(self, teacher_id: str) -> dict:
+        """获取教师已发布的测试列表"""
+        return self.session.get(
+            f"{self.base_url}/test/publish/teacher",
+            params={"teacherId": teacher_id},
         ).json()
 
-    def publish_test_to_class(self, test_id: int, class_ids: list[int]) -> dict:
-        """发布测试到班级"""
-        return self.session.post(
-            f"{self.base_url}/test/publish/class",
-            json={"testId": test_id, "classIds": class_ids},
+    def get_publish_ai(self, params: dict = None) -> dict:
+        """获取 AI 发布测试"""
+        return self.session.get(
+            f"{self.base_url}/test/publish/ai", params=params
         ).json()
 
-    def publish_test_to_student(self, test_id: int, student_ids: list[str]) -> dict:
-        """发布测试到指定学生"""
-        return self.session.post(
-            f"{self.base_url}/test/publish/student",
-            json={"testId": test_id, "studentIds": student_ids},
+    def get_publish_class(self, params: dict = None) -> dict:
+        """获取按班级发布的测试"""
+        return self.session.get(
+            f"{self.base_url}/test/publish/class", params=params
+        ).json()
+
+    def get_publish_student(self, params: dict = None) -> dict:
+        """获取按学生发布的测试"""
+        return self.session.get(
+            f"{self.base_url}/test/publish/student", params=params
         ).json()
 
     def extend_test_time(self, form: ExtendTestTime) -> dict:
@@ -647,6 +666,12 @@ class ACMSClient:
             f"{self.base_url}/knowledgeGraph/data"
         ).json()
 
+    def get_pending_knowledge(self) -> dict:
+        """获取待处理知识图谱"""
+        return self.session.get(
+            f"{self.base_url}/knowledgeGraph/pendingKnowledge"
+        ).json()
+
     def upload_knowledge_graph(self, file_path: str) -> dict:
         """上传知识图谱文件"""
         with open(file_path, "rb") as f:
@@ -654,6 +679,26 @@ class ACMSClient:
                 f"{self.base_url}/upload/knowledge-graph",
                 files={"file": f},
             ).json()
+
+    # ── 分组 ──────────────────────────────────────────────
+
+    def get_group_student(self, params: dict = None) -> dict:
+        """获取学生分组"""
+        return self.session.get(
+            f"{self.base_url}/group/student", params=params
+        ).json()
+
+    def get_group_teacher(self, params: dict = None) -> dict:
+        """获取教师分组"""
+        return self.session.get(
+            f"{self.base_url}/group/teacher", params=params
+        ).json()
+
+    def generate_group(self, payload: dict) -> dict:
+        """生成分组"""
+        return self.session.post(
+            f"{self.base_url}/group/generate", json=payload
+        ).json()
 
     # ── 上传 ──────────────────────────────────────────────
 
