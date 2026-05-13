@@ -341,11 +341,11 @@ class QuestionUpdate:
 # ── 考试扩展 ──
 
 @dataclass
-class ExtendExamTime:
-    """延长考试时间"""
-    student_id: str
+class ExtendTestTime:
+    """延长测试/考试时间"""
     test_id: int
-    extend_minutes: int = 10
+    teacher_id: str
+    minutes: int = 0
 
 
 # ── 作答 ──

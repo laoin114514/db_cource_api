@@ -1379,6 +1379,39 @@ Content-Type: application/octet-stream
 
 ---
 
+### POST /test/extendTestTime
+
+> 延长测试/考试时间
+
+**权限:** 教师或管理员
+
+**Request**
+
+```json
+{
+  "testId": 100,
+  "teacherId": "123456",
+  "minutes": 60
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| testId | int | 是 | 考试 ID |
+| teacherId | string | 是 | 教师工号 |
+| minutes | int | 是 | 延长分钟数 |
+
+**Response** `200 OK`
+
+```json
+{
+  "code": 200,
+  "msg": "成功"
+}
+```
+
+---
+
 ### GET /test/exportClassAverageScores/excel
 
 > 导出班级平均分

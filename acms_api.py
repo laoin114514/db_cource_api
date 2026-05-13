@@ -17,7 +17,7 @@ from acms_models import (
     StudentQuery, StudentForm, StudentUpdate, BatchStudentInfo,
     QuestionCategoryForm, QuestionListQuery, QuestionFind,
     QuestionInsert, QuestionUpdate,
-    TestQuery, TestPublish, ExtendExamTime,
+    TestQuery, TestPublish, ExtendTestTime,
     ResultStudent, ResultStart,
     AnswerItem, SaveAnswer, ScoreItem, ScoreComment, AIResultUpdate,
     VideoForm, VideoListQuery,
@@ -452,10 +452,10 @@ class ACMSClient:
             json={"testId": test_id, "studentIds": student_ids},
         ).json()
 
-    def extend_exam_time(self, form: ExtendExamTime) -> dict:
-        """延长考试时间"""
+    def extend_test_time(self, form: ExtendTestTime) -> dict:
+        """延长测试时间"""
         return self.session.post(
-            f"{self.base_url}/test/extendExamTime", json=to_dict(form)
+            f"{self.base_url}/test/extendTestTime", json=to_dict(form)
         ).json()
 
     def export_student_report(self, student_id: str, test_id: int = 0) -> bytes:

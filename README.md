@@ -48,7 +48,7 @@ client = create_client("123456", "123456")
 | `QuestionUpdate` | `id: int`, `category_id: 0`, `type: ""`, `question_text: ""`, `answer: ""`, `score: 0`, `answer_time: 0` |
 | `TestQuery` | `teacher_id: str`, `class_id: int` |
 | `TestPublish` | `test_id: None`, `title: ""`, `class_ids: []`, `question_ids: []`, `duration: 120`, `start_time: ""`, `end_time: ""`, `is_test: 0` |
-| `ExtendExamTime` | `student_id: str`, `test_id: int`, `extend_minutes: 10` |
+| `ExtendTestTime` | `test_id: int`, `teacher_id: str`, `minutes: 0` |
 | `ResultStudent` | `student_id: str` |
 | `ResultStart` | `student_id: str`, `test_id: int`, `is_test: 0` |
 | `AnswerItem` | `student_id: ""`, `test_id: 0`, `question_id: 0`, `answer: ""` |
@@ -174,7 +174,7 @@ client.publish_test(TestPublish(title="期末考试", duration=120, class_ids=[2
 client.publish_test_ai(TestPublish(title="AI测试", duration=60))
 client.publish_test_to_class(test_id=1, class_ids=[27, 28])
 client.publish_test_to_student(test_id=1, student_ids=["123456"])
-client.extend_exam_time(ExtendExamTime(student_id="123456", test_id=1, extend_minutes=10))
+client.extend_test_time(ExtendTestTime(test_id=100, teacher_id="123456", minutes=60))
 
 data = client.export_student_report("123456", test_id=1)
 data = client.export_class_avg_scores(test_id=1)
