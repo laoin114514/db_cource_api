@@ -276,3 +276,114 @@ class AIAsk:
     """AI 提问"""
     question: str
     context: str = ""
+
+
+# ── 角色 ──
+
+@dataclass
+class RoleUpdate:
+    """更新角色"""
+    id: int
+    name: str = ""
+
+
+# ── 班级更新 ──
+
+@dataclass
+class ClassUpdate:
+    """更新班级"""
+    class_id: int
+    class_name: str = ""
+    headteacher_id: str = ""
+
+
+# ── 批量学生信息 ──
+
+@dataclass
+class BatchStudentInfo:
+    """批量学生信息操作"""
+    students: list[dict] = None
+    operation: str = ""
+
+    def __post_init__(self):
+        if self.students is None:
+            self.students = []
+
+
+# ── 题目增改 ──
+
+@dataclass
+class QuestionInsert:
+    """添加题目"""
+    category_id: int
+    type: str                   # 题型
+    question_text: str
+    answer: str
+    score: int
+    answer_time: int
+    teacher_id: str
+    keywords: str = ""
+    is_ai_generate: bool = False
+
+
+@dataclass
+class QuestionUpdate:
+    """更新题目"""
+    id: int
+    category_id: int = 0
+    type: str = ""
+    question_text: str = ""
+    answer: str = ""
+    score: int = 0
+    answer_time: int = 0
+
+
+# ── 考试扩展 ──
+
+@dataclass
+class ExtendExamTime:
+    """延长考试时间"""
+    student_id: str
+    test_id: int
+    extend_minutes: int = 10
+
+
+# ── 作答 ──
+
+@dataclass
+class SaveAnswer:
+    """保存/更新作答"""
+    student_id: str
+    test_id: int
+    question_id: int
+    answer: str = ""
+
+
+@dataclass
+class ScoreComment:
+    """更新分数和评语"""
+    student_id: str
+    test_id: int
+    question_id: int
+    score: int = 0
+    comment: str = ""
+
+
+@dataclass
+class AIResultUpdate:
+    """更新 AI 评分结果"""
+    student_id: str
+    test_id: int
+
+
+# ── 视频列表查询 ──
+
+@dataclass
+class VideoListQuery:
+    """视频列表查询"""
+    page_num: int = 1
+    page_size: int = 20
+    keyword: str = ""
+
+    def as_params(self) -> dict:
+        return {"pageNum": self.page_num, "pageSize": self.page_size, "keyword": self.keyword}

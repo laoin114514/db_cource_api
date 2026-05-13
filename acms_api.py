@@ -11,14 +11,16 @@ from acms_models import (
     to_dict,
     LoginForm,
     UserQuery, UserInsert, UserUpdate,
-    RoleForm,
+    RoleForm, RoleUpdate,
     TeacherQuery, TeacherForm, TeacherClassRelation,
-    ClassQuery, ClassForm,
-    StudentQuery, StudentForm, StudentUpdate,
+    ClassQuery, ClassForm, ClassUpdate,
+    StudentQuery, StudentForm, StudentUpdate, BatchStudentInfo,
     QuestionCategoryForm, QuestionListQuery, QuestionFind,
-    TestQuery, TestPublish,
+    QuestionInsert, QuestionUpdate,
+    TestQuery, TestPublish, ExtendExamTime,
     ResultStudent, ResultStart,
-    VideoForm,
+    SaveAnswer, ScoreComment, AIResultUpdate,
+    VideoForm, VideoListQuery,
     AttendanceSave, AttendanceUpdate, AttendanceStatus,
     AIAsk,
     PageQuery,
@@ -104,10 +106,10 @@ class ACMSClient:
             f"{self.base_url}/role/add", json=to_dict(form)
         ).json()
 
-    def update_role(self, role_data: dict) -> dict:
+    def update_role(self, form: RoleUpdate) -> dict:
         """更新角色"""
         return self.session.post(
-            f"{self.base_url}/role/update", json=role_data
+            f"{self.base_url}/role/update", json=to_dict(form)
         ).json()
 
     # ── 教师 ──────────────────────────────────────────────
@@ -219,10 +221,10 @@ class ACMSClient:
             f"{self.base_url}/class/insert", json=to_dict(form)
         ).json()
 
-    def update_class(self, class_data: dict) -> dict:
+    def update_class(self, form: ClassUpdate) -> dict:
         """更新班级信息"""
         return self.session.post(
-            f"{self.base_url}/class/update", json=class_data
+            f"{self.base_url}/class/update", json=to_dict(form)
         ).json()
 
     # ── 学生 ──────────────────────────────────────────────
@@ -278,10 +280,10 @@ class ACMSClient:
             json={"studentIds": student_ids, "classId": class_id},
         ).json()
 
-    def batch_student_info(self, payload: dict) -> dict:
+    def batch_student_info(self, form: BatchStudentInfo) -> dict:
         """批量学生信息操作"""
         return self.session.post(
-            f"{self.base_url}/student/batchInfo", json=payload
+            f"{self.base_url}/student/batchInfo", json=to_dict(form)
         ).json()
 
     def export_students(self, class_id: int) -> bytes:
@@ -360,24 +362,25 @@ class ACMSClient:
             params=to_dict(query),
         ).json()
 
-    def insert_question(self, form_data: dict, file_path: str = None) -> dict:
+    def insert_question(self, form: QuestionInsert, file_path: str = None) -> dict:
         """添加题目（支持文件上传）"""
+        d = to_dict(form)
         if file_path:
             with open(file_path, "rb") as f:
                 return self.session.post(
                     f"{self.base_url}/question/insert",
-                    data=form_data,
+                    data=d,
                     files={"file": f},
                 ).json()
         return self.session.post(
             f"{self.base_url}/question/insert",
-            json=form_data,
+            json=d,
         ).json()
 
-    def update_question(self, question_data: dict) -> dict:
+    def update_question(self, form: QuestionUpdate) -> dict:
         """更新题目"""
         return self.session.post(
-            f"{self.base_url}/question/update", json=question_data
+            f"{self.base_url}/question/update", json=to_dict(form)
         ).json()
 
     def batch_delete_questions(self, ids: list[int]) -> dict:
@@ -429,10 +432,10 @@ class ACMSClient:
             f"{self.base_url}/test/publish", json=to_dict(form)
         ).json()
 
-    def publish_test_ai(self, data: dict) -> dict:
+    def publish_test_ai(self, form: TestPublish) -> dict:
         """发布 AI 测试"""
         return self.session.post(
-            f"{self.base_url}/test/publish/ai", json=data
+            f"{self.base_url}/test/publish/ai", json=to_dict(form)
         ).json()
 
     def publish_test_to_class(self, test_id: int, class_ids: list[int]) -> dict:
@@ -449,10 +452,10 @@ class ACMSClient:
             json={"testId": test_id, "studentIds": student_ids},
         ).json()
 
-    def extend_exam_time(self, data: dict) -> dict:
+    def extend_exam_time(self, form: ExtendExamTime) -> dict:
         """延长考试时间"""
         return self.session.post(
-            f"{self.base_url}/test/extendExamTime", json=data
+            f"{self.base_url}/test/extendExamTime", json=to_dict(form)
         ).json()
 
     def export_student_report(self, student_id: str, test_id: int = 0) -> bytes:
@@ -512,28 +515,28 @@ class ACMSClient:
             params={"studentId": student_id, "testId": test_id},
         ).json()
 
-    def save_answer(self, data: dict) -> dict:
+    def save_answer(self, form: SaveAnswer) -> dict:
         """保存作答"""
         return self.session.post(
-            f"{self.base_url}/result/saveAnswer", json=data
+            f"{self.base_url}/result/saveAnswer", json=to_dict(form)
         ).json()
 
-    def update_answer(self, data: dict) -> dict:
+    def update_answer(self, form: SaveAnswer) -> dict:
         """更新作答"""
         return self.session.post(
-            f"{self.base_url}/result/updateAnswer", json=data
+            f"{self.base_url}/result/updateAnswer", json=to_dict(form)
         ).json()
 
-    def update_score_comment(self, data: dict) -> dict:
+    def update_score_comment(self, form: ScoreComment) -> dict:
         """更新分数和评语"""
         return self.session.post(
-            f"{self.base_url}/result/updateScoreAndComment", json=data
+            f"{self.base_url}/result/updateScoreAndComment", json=to_dict(form)
         ).json()
 
-    def update_ai_result(self, data: dict) -> dict:
+    def update_ai_result(self, form: AIResultUpdate) -> dict:
         """更新 AI 评分结果"""
         return self.session.post(
-            f"{self.base_url}/result/update/ai", json=data
+            f"{self.base_url}/result/update/ai", json=to_dict(form)
         ).json()
 
     # ── AI ────────────────────────────────────────────────
@@ -553,10 +556,11 @@ class ACMSClient:
 
     # ── 视频 ──────────────────────────────────────────────
 
-    def get_video_list(self, params: dict = None) -> dict:
+    def get_video_list(self, query: VideoListQuery = VideoListQuery()) -> dict:
         """获取视频列表"""
         return self.session.get(
-            f"{self.base_url}/video/list", params=params
+            f"{self.base_url}/video/list",
+            params=query.as_params(),
         ).json()
 
     def get_video_tree(self) -> dict:
