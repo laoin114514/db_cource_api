@@ -272,10 +272,26 @@ class AttendanceStatus:
 # ── AI ──
 
 @dataclass
+class AIAskItem:
+    """单条 AI 批改题目"""
+    test_id: int
+    student_id: str
+    question_id: int
+    index: int = 0
+    question_text: str = ""
+    student_answer: str = ""
+    score: int = 0
+    max_score: int = 0
+
+
+@dataclass
 class AIAsk:
-    """AI 提问"""
-    question: str
-    context: str = ""
+    """AI 学生提问（questions 数组）"""
+    questions: list[AIAskItem] = None
+
+    def __post_init__(self):
+        if self.questions is None:
+            self.questions = []
 
 
 # ── 角色 ──
@@ -372,7 +388,7 @@ class SaveAnswer:
 @dataclass
 class ScoreItem:
     """单条分数评语"""
-    id: str = ""               # 记录ID（如 "2407110107839100"）
+    id: str = ""               # 记录ID（如 "2407110108839100"）
     question_id: int = 0
     student_id: str = ""
     test_id: int = 0

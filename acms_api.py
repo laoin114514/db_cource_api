@@ -22,7 +22,7 @@ from acms_models import (
     AnswerItem, SaveAnswer, ScoreItem, ScoreComment, AIResultUpdate,
     VideoForm, VideoListQuery,
     AttendanceSave, AttendanceUpdate, AttendanceStatus,
-    AIAsk,
+    AIAskItem, AIAsk,
     PageQuery,
 )
 
@@ -92,6 +92,12 @@ class ACMSClient:
         """更新用户"""
         return self.session.post(
             f"{self.base_url}/user/update", json=to_dict(form)
+        ).json()
+
+    def delete_user(self, user_id: str) -> dict:
+        """删除用户（DELETE /user/{id}）"""
+        return self.session.delete(
+            f"{self.base_url}/user/{user_id}"
         ).json()
 
     # ── 角色 ──────────────────────────────────────────────
@@ -169,6 +175,12 @@ class ACMSClient:
             f"{self.base_url}/teacher/batchInfo", json=payload
         ).json()
 
+    def delete_teacher(self, teacher_id: str) -> dict:
+        """删除教师（DELETE /teacher/{teacherId}）"""
+        return self.session.delete(
+            f"{self.base_url}/teacher/{teacher_id}"
+        ).json()
+
     # ── 班级 ──────────────────────────────────────────────
 
     def query_class(self, query: ClassQuery) -> dict:
@@ -240,6 +252,12 @@ class ACMSClient:
             params={"studentId": student_id},
         ).json()
 
+    def delete_class(self, class_id: int) -> dict:
+        """删除班级（DELETE /class/{classId}）"""
+        return self.session.delete(
+            f"{self.base_url}/class/{class_id}"
+        ).json()
+
     # ── 学生 ──────────────────────────────────────────────
 
     def query_student(self, query: StudentQuery) -> dict:
@@ -281,9 +299,15 @@ class ACMSClient:
         ).json()
 
     def delete_student(self, student_ids: list[int]) -> dict:
-        """删除学生（传入学号整数列表）"""
+        """批量删除学生（POST /student/delete，学号整数列表）"""
         return self.session.post(
             f"{self.base_url}/student/delete", json=student_ids
+        ).json()
+
+    def delete_student_by_id(self, student_id: str) -> dict:
+        """删除单个学生（DELETE /student/{studentId}）"""
+        return self.session.delete(
+            f"{self.base_url}/student/{student_id}"
         ).json()
 
     def update_student_class(self, student_id: str, class_id: int = None, class_name: str = None) -> dict:
@@ -564,9 +588,11 @@ class ACMSClient:
     # ── AI ────────────────────────────────────────────────
 
     def ai_student_ask(self, form: AIAsk) -> dict:
-        """AI 学生提问"""
+        """AI 学生批改（发送 questions 数组）"""
+        items = [to_dict(item) for item in form.questions]
         return self.session.post(
-            f"{self.base_url}/ai/student/ask", json=to_dict(form)
+            f"{self.base_url}/ai/student/ask",
+            json={"questions": items},
         ).json()
 
     def ai_teacher_ask(self, question: str, context: str = "") -> dict:
