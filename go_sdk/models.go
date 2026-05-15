@@ -1,4 +1,4 @@
-package acms_sdk
+package go_sdk
 
 // ── 通用分页 ──
 
@@ -75,8 +75,8 @@ type ClassQuery struct {
 }
 
 type ClassForm struct {
-	ClassName      string `json:"className"`
-	HeadteacherID  string `json:"headteacherId,omitempty"`
+	ClassName     string `json:"className"`
+	HeadteacherID string `json:"headteacherId,omitempty"`
 }
 
 type ClassUpdate struct {
@@ -184,14 +184,14 @@ type TestQuery struct {
 }
 
 type TestPublish struct {
-	TestID       *int   `json:"testId"`
-	Title        string `json:"title"`
-	ClassIDs     []int  `json:"classIds"`
-	QuestionIDs  []int  `json:"questionIds"`
-	Duration     int    `json:"duration"`
-	StartTime    string `json:"startTime,omitempty"`
-	EndTime      string `json:"endTime,omitempty"`
-	IsTest       int    `json:"isTest,omitempty"`
+	TestID      *int   `json:"testId"`
+	Title       string `json:"title"`
+	ClassIDs    []int  `json:"classIds"`
+	QuestionIDs []int  `json:"questionIds"`
+	Duration    int    `json:"duration"`
+	StartTime   string `json:"startTime,omitempty"`
+	EndTime     string `json:"endTime,omitempty"`
+	IsTest      int    `json:"isTest,omitempty"`
 }
 
 type ExtendTestTime struct {
