@@ -11,6 +11,7 @@ import (
 )
 
 const DefaultBaseURL = "http://172.21.44.162:5174/acms"
+const TimeLaout = "2006-01-02T15:04:05.000-07:00"
 
 // ACMSClient 数据库原理智慧课程 API 客户端
 type ACMSClient struct {
