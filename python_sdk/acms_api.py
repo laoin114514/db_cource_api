@@ -7,7 +7,7 @@ from typing import Optional
 
 import requests
 
-from acms_models import (
+from python_sdk.acms_models import (
     to_dict,
     LoginForm,
     UserQuery, UserInsert, UserUpdate,

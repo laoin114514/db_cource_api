@@ -6,8 +6,8 @@ import json
 import sys
 from collections import Counter
 
-from acms_api import create_client
-from acms_models import (
+from python_sdk.acms_api import create_client
+from python_sdk.acms_models import (
     TeacherQuery, ClassQuery, StudentQuery, StudentUpdate,
     QuestionListQuery, QuestionFind, ResultStudent, ResultStart,
     PageQuery, AIAsk,
